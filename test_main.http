@@ -1,0 +1,37 @@
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/hello/User
+Accept: application/json
+
+###
+
+###
+GET http://localhost:8000/users
+
+
+###
+POST http://localhost:8000/users
+
+
+### 文件上传
+POST 127.0.0.1:8000/uploadfile
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="output.txt"
+Content-Type: text/plain
+
+< /Users/hejun/PycharmProjects/FastAPIProject/output.txt
+--WebAppBoundary--
+
+### sse
+GET 127.0.0.1:8000/sse/1
+Accept: text/event-stream
+Cache-Control: no-cache
+
+

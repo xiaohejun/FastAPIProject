@@ -1,0 +1,7 @@
+db:
+  url: sqlite+aiosqlite:///./testing.db
+redis:
+  url: redis://@localhost:6379/0
+celery:
+  broker: pyamqp://guest:@localhost:5672
+  backend: redis://localhost:6379/1

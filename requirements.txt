@@ -1,0 +1,16 @@
+booktype
+pytest-celery[redis]
+celery
+pika
+dependency_injector
+sqlmodel
+
+aiosqlite
+greenlet
+
+fastapi[standard]
+sqlalchemy
+
+redis==6.2.0
+
+asgiref
