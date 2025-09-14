@@ -29,8 +29,8 @@ logger = logging.getLogger(__name__)
 
 
 class FileUploadSettings(BaseSettings):
-    temp_dir: Path = Path(__file__).parent.parent.parent / "temp"
-    storge_dir: Path = Path(__file__).parent.parent.parent / "storage"
+    temp_dir: Path = Path("/tmp") / "file_upload" / "temp"
+    storge_dir: Path = Path("/tmp") / "file_upload" / "storage"
     chunk_size: int = 1024 * 1024
     buffer_size: int = 64 * 1024
 
@@ -96,24 +96,20 @@ class FileUploader:
         file_size = task.file_size
         uploaded_bytes = task.uploaded_bytes
 
-        def get_progress():
-            return min(100.0, round((uploaded_bytes / file_size) * 100, 2))
-
-        def get_elapsed_time():
-            return round(time() - task.start_time, 2)
-
-        def get_speed():
-            return round(uploaded_bytes / 1024 / get_elapsed_time(), 2)
-
-        progress = FileUploadProgress(
+        p = FileUploadProgress(
             **task.model_dump(),
-            progress=get_progress(),
-            elapsed_time=get_elapsed_time(),
-            speed=get_speed(),
         )
+        p.progress = min(100.0, round((uploaded_bytes / file_size) * 100, 2))
+        p.elapsed_time = round(time() - task.start_time, 2)
+        p.speed = (
+            0
+            if p.elapsed_time == 0
+            else min(100.0, round((uploaded_bytes / p.elapsed_time) / 1024, 2))
+        )
+        p.unit = "KB/s"
         await self._sse_pubsub.publish(
             self._progress_channel(task.id),
-            progress.model_dump_json(),
+            p.model_dump_json(),
         )
 
     async def progress(self, task_id: UUID):
@@ -123,12 +119,12 @@ class FileUploader:
         return await self._sse_pubsub.subscribe(self._progress_channel(task_id))
 
     async def create_task(
-        self, create_task: FileUploadTaskCreate
+        self, task_data: FileUploadTaskCreate
     ) -> FileUploadTaskPublic:
         """
         创建文件上传任务
         """
-        task_public = FileUploadTaskPublic(**create_task.model_dump())
+        task_public = FileUploadTaskPublic(**task_data.model_dump())
         task_public.total_chunks = math.ceil(
             task_public.file_size / task_public.chunk_size
         )
@@ -137,6 +133,8 @@ class FileUploader:
             temp_dir=self._settings.temp_dir / self._bucket_name,
             storge_dir=self._settings.storge_dir / self._bucket_name,
         )
+        task.temp_dir.mkdir(parents=True, exist_ok=True)
+        task.storge_dir.mkdir(parents=True, exist_ok=True)
         await self.store_task(task)
         await self.notify_progress(task)
         return task_public
@@ -220,6 +218,8 @@ class FileChunkUploader(FileUploader):
             # 写入文件分片
             await self._write_chunk(task, chunk_idx, req.chunk)
             nxt_chunk_idx = chunk_idx + 1
+            rsp.nxt_chunk_idx = nxt_chunk_idx
+            task.nxt_chunk_idx = nxt_chunk_idx
             if nxt_chunk_idx == task.total_chunks:
                 # 上传完成
                 rsp.success = True
@@ -236,8 +236,6 @@ class FileChunkUploader(FileUploader):
                 # 当前分片上传成功，等待上传下个分片
                 rsp.success = True
                 rsp.code = FileChunkUploadRetCode.WAITING_NEXT_CHUNK
-                rsp.nxt_chunk_idx = nxt_chunk_idx
-
                 task.nxt_chunk_idx = nxt_chunk_idx
                 task.status = FileUploadTaskStatus.WAITING_NEXT_CHUNK
                 await self.store_task(task)

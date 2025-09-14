@@ -13,11 +13,13 @@ fastapi[standard]
 sqlalchemy
 aiofiles
 sse_starlette
+httpx
+asgi-lifespan
 
 redis==6.2.0
 
 asgiref
 aiodocker
 pytest
-pytest-asyncio>=1.1.0
+pytest-asyncio>=1.2.0
 pydantic_settings

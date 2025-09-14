@@ -25,9 +25,9 @@ class FileUploadService:
         self._uploader = uploader
 
     async def create_task(
-        self, create_task: FileUploadTaskCreate
+        self, task_data: FileUploadTaskCreate
     ) -> FileUploadTaskPublic:
-        return await self._uploader.create_task(create_task)
+        return await self._uploader.create_task(task_data)
 
     async def upload_chunk(
         self, req: FileChunkUploadRequest

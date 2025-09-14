@@ -1,4 +1,5 @@
 """Application module."""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -13,20 +14,25 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        print("Starting up")
         await deps.init_resources()
         db = await deps.db()
         await db.create_all()
         yield
+        print("Shutting down")
         await deps.shutdown_resources()
 
-    app = FastAPI(
-        lifespan=lifespan
-    )
+    app = FastAPI(lifespan=lifespan)
     app.deps = deps
+
+    @app.get("/")
+    async def root():
+        return {"message": "Hello World"}
 
     app.include_router(users_router)
     app.include_router(items_router)
     app.include_router(file_router)
     return app
+
 
 app = create_app()

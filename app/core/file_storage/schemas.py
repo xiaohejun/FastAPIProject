@@ -23,19 +23,19 @@ class FileUploadTaskStatus(str, Enum):
 
 
 class FileUploadTaskPublic(FileUploadTaskBase):
-    id: UUID = Field(default_factory=uuid4())
+    id: UUID = Field(default_factory=uuid4)
     total_chunks: int = Field(default=1, gt=0)
     chunk_size: int = Field(default=1024 * 1024, gt=0)
     uploaded_bytes: int = Field(default=0, ge=0)
     status: FileUploadTaskStatus = Field(default=FileUploadTaskStatus.STARTED)
+    start_time: float = Field(default_factory=time)
+    end_time: float | None = Field(default=None)
+    nxt_chunk_idx: int = Field(default=0, ge=0)
 
 
 class FileUploadTaskPrivate(FileUploadTaskPublic):
     temp_dir: Path
     storge_dir: Path
-    nxt_chunk_idx: int = Field(default=0, ge=0)
-    start_time: float = Field(default_factory=time)
-    end_time: float | None = Field(default=None)
 
 
 class FileChunkUploadRequest(BaseModel):

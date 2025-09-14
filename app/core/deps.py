@@ -49,7 +49,7 @@ class ServiceFactory:
             yield UserService(UserRepository(session))
 
     async def file_uploader(self):
-        return FileUploadService(self.deps.file_uploader(bucket_name="test"))
+        return FileUploadService(await self.deps.file_uploader(bucket_name="test"))
 
 
 #

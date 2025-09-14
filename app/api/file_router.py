@@ -16,10 +16,10 @@ file_router = APIRouter(prefix="/file", tags=["file"])
 
 @file_router.post("/upload/create_task")
 async def create_upload_task(
-    task_create: FileUploadTaskCreate,
+    task_data: FileUploadTaskCreate,
     srv: FileUploadService = Depends(get_file_upload_service),
 ) -> FileUploadTaskPublic:
-    return await srv.create_task(task_create)
+    return await srv.create_task(task_data)
 
 
 @file_router.post("/upload/chunk")

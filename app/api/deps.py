@@ -12,4 +12,4 @@ async def get_user_service(deps: DepsContainer = Depends(deps_container)):
 
 
 async def get_file_upload_service(deps: DepsContainer = Depends(deps_container)):
-    return ServiceFactory(deps).file_uploader()
+    yield await ServiceFactory(deps).file_uploader()
