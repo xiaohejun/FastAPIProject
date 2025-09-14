@@ -112,11 +112,12 @@ class FileUploader:
             p.model_dump_json(),
         )
 
-    async def progress(self, task_id: UUID):
+    async def progress(self, task_ids: list[UUID]):
         """
         获取文件上传进度
         """
-        return await self._sse_pubsub.subscribe(self._progress_channel(task_id))
+        channels = tuple([self._progress_channel(task_id) for task_id in task_ids])
+        return await self._sse_pubsub.subscribe(*channels)
 
     async def create_task(
         self, task_data: FileUploadTaskCreate

@@ -1,5 +1,6 @@
 """Services module."""
 
+from uuid import UUID
 from app.core.file_storage.file_upload import FileChunkUploader, FileUploader
 from app.core.file_storage.schemas import (
     FileChunkUploadRequest,
@@ -33,3 +34,9 @@ class FileUploadService:
         self, req: FileChunkUploadRequest
     ) -> FileChunkUploadResponse:
         return await self._uploader.upload_chunk(req)
+
+    # async def query_task(self, task_ids: list[UUID]) -> list[FileUploadTaskPublic]:
+    #     return await self._uploader.query_task(task_ids)
+
+    async def progress(self, task_ids: list[UUID]) -> FileUploadTaskPublic:
+        return await self._uploader.progress(task_ids)

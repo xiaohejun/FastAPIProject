@@ -1,5 +1,8 @@
+import asyncio
+import json
 import math
 import os
+from httpx_sse import aconnect_sse
 import pytest
 import pytest_asyncio
 from pathlib import Path
@@ -13,6 +16,9 @@ from app.core.file_storage.schemas import (
     FileChunkUploadRequest,
     FileChunkUploadRetCode,
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @pytest_asyncio.fixture(loop_scope="session", scope="session")
@@ -61,6 +67,25 @@ async def test_file_upload_task_create(client: AsyncClient):
     assert task.end_time is None
     assert task.nxt_chunk_idx == 0
 
+    async def task_progress():
+        # 上传进度
+        async with client.stream(
+            "POST",
+            "/file/upload/progress",
+            json=[str(task.id)],
+            # headers={"Accept": "text/event-stream"},
+            # follow_redirects=True,
+        ) as response:
+            # 确保是SSE响应
+            # response.raise_for_status()
+            logger.info(response)
+            # print(response.json())
+            async for chunk in response.aiter_bytes():
+                # Process each chunk of bytes
+                logger.info(f"Received chunk of size: {chunk}")
+
+    task_progress_task = asyncio.create_task(task_progress())
+
     # 上传文件
     with open(file_path, "rb") as f:
         chunk_size = task.chunk_size
@@ -89,3 +114,7 @@ async def test_file_upload_task_create(client: AsyncClient):
             else:
                 assert resp.code == FileChunkUploadRetCode.WAITING_NEXT_CHUNK
             chunk_idx = resp.nxt_chunk_idx
+
+    logger.info("wait for task progress task done")
+    await task_progress_task
+    logger.info("task progress task done")

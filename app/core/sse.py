@@ -1,6 +1,9 @@
 import asyncio
 from redis.asyncio import Redis
 from sse_starlette import JSONServerSentEvent, EventSourceResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SSEPubSub:
@@ -20,9 +23,11 @@ class SSEPubSub:
         """
 
         async def _event_generator():
+            logger.info(f"subscribe channels: {channels}")
             for channel in channels:
                 prev_message = await self.get_prev_message(channel)
                 if prev_message:
+                    # logger.info(f"get prev message: {prev_message}")
                     yield JSONServerSentEvent(data=prev_message)
             async with self._redis.pubsub() as pubsub:
                 await pubsub.subscribe(*channels)
@@ -31,6 +36,7 @@ class SSEPubSub:
                         ignore_subscribe_messages=True, timeout=0.1
                     )
                     if msg and msg["type"] == "message":
+                        # logger.info(f"get message: {msg['data']}")
                         yield JSONServerSentEvent(
                             data=msg["data"],
                         )
