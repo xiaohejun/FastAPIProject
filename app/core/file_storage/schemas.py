@@ -55,9 +55,9 @@ class FileChunkUploadRetCode(str, Enum):
     WAITING_NEXT_CHUNK = "waiting_next_chunk"
     CHUNK_UPLOADING = "chunk_uploading"
     CHUNK_IDX_WRONG = "chunk_idx_wrong"
+    ALL_CHUNKS_UPLOADED = "all_chunks_uploaded"
     TASK_NOT_EXIST = "task_not_exist"
     TASK_ALREADY_FINISHED = "task_already_finished"
-    TASK_FINISHED = "task_finished"
     INTERNAL_ERROR = "internal_error"
 
 

@@ -11,6 +11,7 @@ from app.core.file_storage.schemas import (
     FileUploadTaskCreate,
     FileUploadTaskPublic,
     FileChunkUploadRequest,
+    FileChunkUploadRetCode,
 )
 
 
@@ -83,4 +84,8 @@ async def test_file_upload_task_create(client: AsyncClient):
             assert resp.chunk_idx == chunk_idx
             assert resp.success is True
             assert resp.nxt_chunk_idx == chunk_idx + 1
+            if chunk_idx == task.total_chunks - 1:
+                assert resp.code == FileChunkUploadRetCode.ALL_CHUNKS_UPLOADED
+            else:
+                assert resp.code == FileChunkUploadRetCode.WAITING_NEXT_CHUNK
             chunk_idx = resp.nxt_chunk_idx

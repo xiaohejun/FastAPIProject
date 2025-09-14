@@ -224,7 +224,7 @@ class FileChunkUploader(FileUploader):
             if nxt_chunk_idx == task.total_chunks:
                 # 上传完成
                 rsp.success = True
-                rsp.code = FileChunkUploadRetCode.TASK_FINISHED
+                rsp.code = FileChunkUploadRetCode.ALL_CHUNKS_UPLOADED
 
                 # 移动文件分片到存储目录
                 await self._storage_file(task)
