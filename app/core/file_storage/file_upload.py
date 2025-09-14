@@ -125,6 +125,7 @@ class FileUploader:
         创建文件上传任务
         """
         task_public = FileUploadTaskPublic(**task_data.model_dump())
+        task_public.chunk_size = self._settings.chunk_size
         task_public.total_chunks = math.ceil(
             task_public.file_size / task_public.chunk_size
         )

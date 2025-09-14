@@ -52,7 +52,7 @@ async def test_file_upload_task_create(client: AsyncClient):
     assert task.id is not None
     assert task.file_name == file_path.stem
     assert task.file_size == s.st_size
-    assert task.chunk_size == 1024 * 1024
+    assert task.chunk_size == 1 * 1024 * 1024
     assert task.total_chunks == math.ceil(s.st_size / task.chunk_size)
     assert task.uploaded_bytes == 0
     assert task.status == "started"
