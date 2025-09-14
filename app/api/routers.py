@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_user_service
-from app.models import UserCreate, User
+from app.models import UserCreate, User, FileUploadCreate, FileUpload
 from app.services import UserService
 
 users_router = APIRouter(

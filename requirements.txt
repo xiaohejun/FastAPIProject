@@ -1,3 +1,4 @@
+pydantic
 booktype
 pytest-celery[redis]
 celery
@@ -10,7 +11,13 @@ greenlet
 
 fastapi[standard]
 sqlalchemy
+aiofiles
+sse_starlette
 
 redis==6.2.0
 
 asgiref
+aiodocker
+pytest
+pytest-asyncio>=1.1.0
+pydantic_settings

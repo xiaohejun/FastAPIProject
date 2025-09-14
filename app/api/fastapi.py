@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from app.core.deps import DepsContainer
 from app.api.routers import users_router, items_router
+from app.api.file_router import file_router
 
 
 def create_app() -> FastAPI:
@@ -25,6 +26,7 @@ def create_app() -> FastAPI:
 
     app.include_router(users_router)
     app.include_router(items_router)
+    app.include_router(file_router)
     return app
 
 app = create_app()
